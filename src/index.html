@@ -1,17 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
+<meta charset="utf-8">
+<title>Static Content Hosting</title>
+<script src=https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href=https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/themes/redmond/jquery-ui.min.css>
+    <link rel="stylesheet" href=https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.0/css/ui.jqgrid.min.css>
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js></script>
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.0/jquery.jqgrid.min.js></script>
+
+
+<script>
+$(document).ready(function () {
+    $("#submit").click(function (e) {
+       //alert("hi");
+       var name=  $("#txtName").val();	  
+	   var title= $("#txtTitle").val();	 
+                    $.ajax({
+            url: "https://apimscm.azure-api.net/FAStaticContenthosting/Addemployee?name=" + name + "&title="+title,
+            beforeSend: function(xhrObj){
+                // Request headers
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","b2a47f4fb57c4d3da173efa342d1144c");
+            },
+            type: "POST",
+            // Request body
+            //data: {name:'gary',title:'male'},
+        })
+        .done(function(data) {
+            alert("Employee added success.");
+			$('#txtName').val('');
+			$('#txtTitle').val('');
+        })
+        .fail(function() {
+            alert("error");
+        });
+
+        
+    });
+  //--------------------------------------------------------------
+
+   console.log("fired off on ready...");
+    var url = "https://apimscm.azure-api.net/FAStaticContenthosting/GetEmployee"
+           $.ajax({
+            url: url,	
+			beforeSend: function(xhrObj){
+                // Request headers
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","b2a47f4fb57c4d3da173efa342d1144c");
+            },
+		    method: "GET",
+           crossDomain: true,
+           success: function (respData) {
+               console.log(respData);
+			 
+			   $("#grid").jqGrid({
+            colModel: [
+                { name: "Empname" },
+                { name: "Title" }
+            ],
+            data:respData 
+			
+			 // [{"Empname":"Javed","Title":"Architect"},{"Empname":"test","Title":"test"}]
+        });
+                $("#functionData").html("<div style='padding: 5em 1em; text-align: center; color: #008800'>" + respData.m_StringValue + "</div>");
+           },
+          error: function (jqXHR) {
+              console.log(jqXHR)
+              $("#functionData").html("<div style='padding: 1em; text-align: center; color: #660000'>Sorry, an error occurred: " + jqXHR.responseText + "</div>");
+          }
+       });
+  //-------------------------------------------------------------
+    
+});
+</script>
 </head>
-
+ 
 <body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
-</body>
+<table align="Center" border="1">
+	<tr><td align="left" colspan="2"><b>Add Employee</b></td></tr>
+	<tr><td align="left">Employee Name</td><td> <input type="text" id="txtName"></td></tr>
+	<tr><td align="left">Employee Title</td><td><input type="text" id="txtTitle"></td></tr>
+<tr><td colspan=2 align="center"><button id="submit">Submit</button></td></tr>
+ 
+</table>
 
+<table id="grid"></table>
+<div id="message"></div>
+<div id="functionData"></div>
+
+</body>
+ 
 </html>
